@@ -20,7 +20,6 @@ const Navbar = (props) => {
                 </a>
                 <div className='d-flex'>
                     <Link className='btn btn-primary m-2' to='/login'>Login</Link>
-                    <Link className='btn btn-primary m-2' to='/inicio'>Inicio</Link>
                 </div>
             </div>
         </nav>
