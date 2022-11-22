@@ -1,8 +1,17 @@
-import React from 'react'
+  import React from 'react'
 
 const Login = () => {
   return (
-    <div>Login</div>
+    <div className='container'>
+      <div className='row bg-primary'>
+        <div className='col'>
+
+        </div>
+        <div className='col'>
+            
+        </div>
+      </div>
+    </div>
   )
 }
 

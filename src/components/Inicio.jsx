@@ -15,7 +15,7 @@ const Inicio = () => {
                         width='350px' height='225px' alt="bloque 11" />
                 </div>
             </div>
-            <div className='col bg-warning bg-opacity-75 rounded-start col-sm-12 col-lg-4 mt-5'>
+            <div className='col bg-warning bg-opacity-75 rounded-start col-lg-4 mt-5'>
                 <div className='row m-2'>
                     Con el propósito de contribuir al desarrollo educativo regional a nivel superior, se creó el 16 de Noviembre de 1970, la UNIVERSIDAD DE LA COSTA –CUC, entidad sin ánimo de lucro, dedicada a la formación de profesionales en el área de la ciencia, la tecnología, las humanidades, el arte y la filosofía.
                 </div>
@@ -33,7 +33,7 @@ const Inicio = () => {
                     En la Década de los 90 ́ el ICFES autoriza el funcionamiento de los programas de INGENIERIA ELECTRICA, INGENIERIA ELECTRONICA, INDUSTRIAL, SANITARIA Y AMBIENTAL, ANÁLISIS Y PROGRAMACIÓN DE COMPUTADORES, TECNOLOGÍA EN INFORMÁTICA Y TELECOMUNICACIONES, luego el programa de PSICOLOGÍA
                 </div>
             </div>
-            <div className='col bg-warning bg-opacity-75 rounded-end col-sm-12 col-lg-4 ps-3 mt-5'>
+            <div className='col bg-warning bg-opacity-75 rounded-end col-lg-4 ps-3 mt-5'>
                 <div className='row m-2'>
                     A mediados de 1994 se realizó un diagnostico con el fin de determinar la eficacia y la eficiencia que tenia la gestión investigativa en la institución, a raíz de las inquietudes generadas por la aprobación de la Ley 30/92. El Consejo Directivo determina la implementación y puesta en marcha del Centro de Investigaciones y Desarrollo -CID- que se pone en marcha en 1996, ente interdisciplinario, al cual se adscriben los investigadores pertenecientes a los anteriores centros de las facultades.
                 </div>
