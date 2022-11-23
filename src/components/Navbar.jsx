@@ -1,6 +1,6 @@
 import React from 'react'
-import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase"
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { auth } from "../Firebase"
 
 const Navbar = (props) => {
     const navigate = useNavigate()
@@ -19,7 +19,14 @@ const Navbar = (props) => {
                     <img src="https://www.cuc.edu.co/wp-content/uploads/2021/07/logo1cuc.png" height="60px" width='180px' alt="logo cuc" />
                 </a>
                 <div className='d-flex'>
-                    <Link className='btn btn-primary m-2' to='/login'>Login</Link>
+                    
+                    {
+                        props.isAuthenticated !== null ? (
+                            <button className='btn btn-danger' onClick={cerrarSesion}>Logout</button>
+                        ):(
+                            <NavLink className='btn btn-primary' to='/login'>Login</NavLink>
+                        )
+                    }
                 </div>
             </div>
         </nav>

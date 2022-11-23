@@ -1,5 +1,5 @@
 import React from 'react'
-import {db,auth} from '../firebase'
+import {db,auth} from '../Firebase'
 import { useNavigate } from 'react-router-dom'
 
 
@@ -69,7 +69,7 @@ const Login = () => {
         setEmail('')
         setPass('')
         setError(null)
-        navigate("/admin")
+        navigate("/login")
       } catch (error) {
         console.log(error)
         if (error.code==='auth/invalid-email') {
