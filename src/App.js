@@ -4,7 +4,7 @@ import Inicio from "./components/Inicio";
 import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import Solicitud from "./components/Solicitud";
-import { auth } from "./Firebase"
+import { auth } from "./firebase"
 
 
 function App() {
