@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase"
-import firebase from 'firebase';
+import {firebase} from '../firebase';
 
 const requerimientos = [
     {
@@ -21,6 +21,7 @@ const requerimientos = [
 const Solicitud = () => {
     const navigate = useNavigate();
     const [user, setUser] = React.useState(null)
+    const [lista, setLista] = React.useState([])
     const [idArticulos, setIdArticulos] = React.useState(-1)
     const [categ, setCateg] = React.useState(-1)
     const [fecha, setFecha] = React.useState('')
@@ -78,6 +79,29 @@ const Solicitud = () => {
         setCateg(-1)
         }
     
+    React.useEffect(()=>{
+        const obtDatos = async ()=>{
+            try {
+                const db = firebase.firestore();
+                const data = await db.collection('Solicitudes').get()
+                const arraydata = data.docs.map((doc)=>({id:doc.id,...doc.data()}))
+                // setLista(arraydata)
+                // console.log('Datos')
+                // console.log(arraydata)
+                const filtro = [];
+                for (let i = 0; i < arraydata.length; i++) {
+                    if(arraydata[i].id === auth.currentUser.uid){
+                        filtro.push(arraydata[i])
+                    }
+                }
+                setLista(filtro)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        obtDatos()
+    },[])
+
     React.useEffect(() => {
         (auth.currentUser) ? setUser(auth.currentUser) : navigate('/login')
     }, [navigate])
@@ -101,7 +125,7 @@ const Solicitud = () => {
                     <div className="card-body">
                         <h5 className="card-title">CONSULTAS</h5>
                         <p className="card-text">¿Deseas consultar algo?</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalConsulta">
+                        <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalConsulta">
                             Haz click aquí!
                         </button>
                     </div>
@@ -156,19 +180,52 @@ const Solicitud = () => {
                     </div>
                 </div>
                 {/* Modal Consultas */}
-                <div class="modal fade" id="modalConsulta" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Consultas</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div className="modal fade" id="modalConsulta" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="staticBackdropLabel">Consultas</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            ...
+                        <div className="modal-body">
+                            <table className="table table-hover table-primary">
+                                <thead>
+                                    <tr>
+                                        <th scope='col'>Categoria</th>
+                                        <th scope='col'>Articulo</th>
+                                        <th scope='col'>Descripción</th>
+                                        <th scope='col'>Ubicación</th>
+                                        <th scope='col'>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        lista.map((element)=>(
+                                            <tr>
+                                                <td>
+                                                    {element.categoria}
+                                                </td>
+                                                <td>
+                                                    {element.articulo}
+                                                </td>
+                                                <td>
+                                                    {element.ubicacion}
+                                                </td>
+                                                <td>
+                                                    {element.descripcion}
+                                                </td>
+                                                <td>
+                                                    {element.fecha}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    }
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-primary">Aceptar</button>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="button" className="btn btn-primary">Aceptar</button>
                         </div>
                         </div>
                     </div>
