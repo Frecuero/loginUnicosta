@@ -29,6 +29,8 @@ const Solicitud = () => {
     const [categoria, setCategoria] = React.useState('')
     const [ubicacion, setUbicacion] = React.useState('')
     const [articulo, setArticulo] = React.useState('')
+    const [editar, setEditar] = React.useState(true)
+    const [id, setId] = React.useState('')
 
     const cargarServicios = (e) => {
         const opcion = e.target.value;
@@ -52,51 +54,113 @@ const Solicitud = () => {
 
     const guardarDatos = async (e)=>{
         e.preventDefault();
+        if (!categoria || categoria == -1){
+            alert("Seleccione una categoria")
+            return
+        }
+        if (!articulo || articulo == -1){
+            alert("Seleccione un servicio")
+            return
+        }
         if (!descripcion.trim()) {
-          // alert("Ingrese nombre")
-          console.log("Ingrese la descripción de la petición")
+          alert("Ingrese la descripción de la petición")
           return
         }
         if (!ubicacion.trim()) {
-          // alert("Ingrese apellido")
-          console.log("Ingrese la ubicación de la incidencia")
+          alert("Ingrese la ubicación de la incidencia")
           return
         }
+        if(!fecha){
+            alert("Ingrese una fecha")
+            return
+        }
+        
         try {
             const db = firebase.firestore()
             const email = user.email;
-            const id = user.uid;
-            const nuevoDescripcion = {id ,descripcion, ubicacion, fecha, email, categoria, articulo}
-            console.log(nuevoDescripcion)
+            const idUser = user.uid;
+            const nuevoDescripcion = {idUser ,descripcion, ubicacion, fecha, email, categoria, articulo}
             await db.collection('Solicitudes').add(nuevoDescripcion)
-    
+            setDescripcion('')
+            setUbicacion('')
+            setCategoria(-1)
+            setIdArticulos(-1)
+            setFecha('')
+            setCateg(-1)
+
         } catch (error) {
-          console.log(error)
+            alert(error)
         }
-        setDescripcion('')
-        setUbicacion('')
-        setIdArticulos(-1)
-        setCateg(-1)
+       
         }
     
+    const Modoeditar = () =>{
+        setEditar(!editar)
+    }
+
+    const actualizar = (elemento)=>{
+        setId(elemento.id)
+        actualizarDato()
+    }
+
+    const actualizarDato = async (e)=>{
+        e.preventDefault();
+        if (!categoria || categoria == -1){
+            alert("Seleccione una categoria")
+            return
+        }
+        if (!articulo || articulo == -1){
+            alert("Seleccione un servicio")
+            return
+        }
+        if (!descripcion.trim()) {
+          alert("Ingrese la descripción de la petición")
+          return
+        }
+        if (!ubicacion.trim()) {
+          alert("Ingrese la ubicación de la incidencia")
+          return
+        }
+        if(!fecha){
+            alert("Ingrese una fecha")
+            return
+        }
+        try {
+            const db = firebase.firestore()
+            await db.collection('Solicitudes').doc(id).update({descripcion, ubicacion, fecha, categoria, articulo})
+            const listaEdit = lista.map((elemnto)=>elemnto.id === id? {id, descripcion, ubicacion, fecha, categoria, articulo}: elemnto)
+            setLista(listaEdit)
+        } catch (error) {
+            alert(error)
+        }
+    }
+
+    const eliminarDato = async (id) =>{
+        try {
+            const db = firebase.firestore()
+            await db.collection('Solicitudes').doc(id).delete()
+            const filterList = lista.filter((i)=>i.id !== id)
+            setLista(filterList)
+        } catch (error) {
+            alert(error)
+        }
+    }
+
     React.useEffect(()=>{
         const obtDatos = async ()=>{
             try {
                 const db = firebase.firestore();
                 const data = await db.collection('Solicitudes').get()
                 const arraydata = data.docs.map((doc)=>({id:doc.id,...doc.data()}))
-                // setLista(arraydata)
-                // console.log('Datos')
-                // console.log(arraydata)
                 const filtro = [];
                 for (let i = 0; i < arraydata.length; i++) {
-                    if(arraydata[i].id === auth.currentUser.uid){
+                    if(arraydata[i].idUser === auth.currentUser.uid){
                         filtro.push(arraydata[i])
                     }
                 }
                 setLista(filtro)
             } catch (error) {
-                console.log(error)
+                alert(error)
             }
         }
         obtDatos()
@@ -181,7 +245,7 @@ const Solicitud = () => {
                 </div>
                 {/* Modal Consultas */}
                 <div className="modal fade" id="modalConsulta" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog">
+                    <div className="modal-dialog modal-xl">
                         <div className="modal-content">
                         <div className="modal-header">
                             <h1 className="modal-title fs-5" id="staticBackdropLabel">Consultas</h1>
@@ -192,30 +256,65 @@ const Solicitud = () => {
                                 <thead>
                                     <tr>
                                         <th scope='col'>Categoria</th>
-                                        <th scope='col'>Articulo</th>
+                                        <th scope='col'>Servicio</th>
                                         <th scope='col'>Descripción</th>
                                         <th scope='col'>Ubicación</th>
                                         <th scope='col'>Fecha</th>
+                                        <th scope='col'>
+                                            <button className="btn btn-sm btn-outline-dark float-end" onClick={()=>Modoeditar()} ><i className="bi bi-pencil p-1"></i></button>
+                                            </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {
-                                        lista.map((element)=>(
-                                            <tr>
+                                        lista.map((element, i)=>(
+                                            <tr key={i}>
                                                 <td>
-                                                    {element.categoria}
+                                                    {
+                                                        editar?
+                                                        <input className='form-control form-control-sm' value={element.categoria} disabled = {editar}/>
+                                                        :
+                                                        <select className="form-select-sm" aria-label="Default select example" onClick={cargarServicios}>
+                                                            <option value={categ}>Categoria principal:</option>
+                                                            {
+                                                                requerimientos.map((item, i) => (
+                                                                    <option key={i} value={i} >{item.categoria}</option>
+                                                                ))
+                                                            }
+                                                        </select>
+                                                    }
                                                 </td>
                                                 <td>
-                                                    {element.articulo}
+                                                    {
+                                                        editar?
+                                                        <input className='form-control form-control-sm' value={element.articulo} disabled = {editar} />:
+                                                        <select className="form-select-sm " aria-label="Default select example" onClick={cargarArticulos} >
+                                                            <option value={-1}>Servicios:</option>
+                                                            {
+                                                                idArticulos > -1 &&
+                                                                (
+                                                                    requerimientos[idArticulos].servicios.map((item, i) => (
+                                                                        <option key={i} value={item}>{item}</option>
+                                                                    ))
+                                                                )
+                                                            }
+                                                        </select>
+                                                    }
                                                 </td>
                                                 <td>
-                                                    {element.ubicacion}
+                                                    <input className='form-control form-control-sm' value={element.descripcion} disabled = {editar} />
                                                 </td>
                                                 <td>
-                                                    {element.descripcion}
+                                                    <input className='form-control form-control-sm' value={element.ubicacion} disabled = {editar} />
                                                 </td>
                                                 <td>
-                                                    {element.fecha}
+                                                    <input className='form-control form-control-sm' type="date" value={element.fecha} name="fecha" onChange={(e)=>{setFecha(e.target.value)}} disabled = {editar} />
+                                                    
+                                                </td>
+                                                <td>
+                                                <button className="btn btn-sm btn-outline-info ms-1 float-end" onClick={()=>actualizar(element)}><i className="bi bi-check-lg"></i></button>
+                                                <button className="btn btn-sm btn-outline-danger ms-1 float-end"
+                                                    onClick={()=>eliminarDato(element.id)}><i className="bi bi-trash3"></i></button>
                                                 </td>
                                             </tr>
                                         ))
