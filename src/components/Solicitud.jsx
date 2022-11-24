@@ -1,4 +1,5 @@
 import React from 'react'
+import { nanoid } from "nanoid";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase"
 import {firebase} from '../firebase';
@@ -29,7 +30,7 @@ const Solicitud = () => {
     const [categoria, setCategoria] = React.useState('')
     const [ubicacion, setUbicacion] = React.useState('')
     const [articulo, setArticulo] = React.useState('')
-    const [editar, setEditar] = React.useState(true)
+    const [editar, setEditar] = React.useState(false)
     const [id, setId] = React.useState('')
 
     const cargarServicios = (e) => {
@@ -81,27 +82,41 @@ const Solicitud = () => {
             const idUser = user.uid;
             const nuevoDescripcion = {idUser ,descripcion, ubicacion, fecha, email, categoria, articulo}
             await db.collection('Solicitudes').add(nuevoDescripcion)
+            setLista([
+                ...lista,
+                {
+                    id: nanoid(),
+                    categoria,
+                    articulo,
+                    descripcion,
+                    ubicacion,
+                    fecha
+                }
+            ])
             setDescripcion('')
             setUbicacion('')
             setCategoria(-1)
             setIdArticulos(-1)
             setFecha('')
             setCateg(-1)
+            setEditar(false)
 
         } catch (error) {
             alert(error)
         }
        
-        }
-    
-    const Modoeditar = () =>{
-        setEditar(!editar)
     }
 
-    const actualizar = (elemento)=>{
-        setId(elemento.id)
-        actualizarDato()
-    }
+    const auxEditar = (item) => {
+        console.log(item);
+        setDescripcion(item.descripcion)
+        setArticulo(item.articulo)
+        setCategoria(item.categoria)
+        setFecha(item.fecha)
+        setUbicacion(item.ubicacion)
+        setId(item.id)
+        setEditar(true)
+    }    
 
     const actualizarDato = async (e)=>{
         e.preventDefault();
@@ -131,8 +146,15 @@ const Solicitud = () => {
             const listaEdit = lista.map((elemnto)=>elemnto.id === id? {id, descripcion, ubicacion, fecha, categoria, articulo}: elemnto)
             setLista(listaEdit)
         } catch (error) {
-            alert(error)
+            console.log(error)
         }
+        setDescripcion('')
+        setUbicacion('')
+        setCategoria(-1)
+        setIdArticulos(-1)
+        setFecha('')
+        setCateg(-1)
+        setEditar(false)
     }
 
     const eliminarDato = async (id) =>{
@@ -144,6 +166,10 @@ const Solicitud = () => {
         } catch (error) {
             alert(error)
         }
+    }
+
+    const cancelar = () => {
+        setEditar(false)
     }
 
     React.useEffect(()=>{
@@ -196,11 +222,15 @@ const Solicitud = () => {
                 </div>
 
                 {/* Modal Solicitudes */}
-                <div className="modal fade" id="solicitudModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal fade" id="solicitudModal" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{zIndex:"1900"}}>
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1 className="modal-title fs-5" id="exampleModalLabel">SOLICITUDES</h1>
+                                <h1 className="modal-title fs-5" id="exampleModalLabel">
+                                    {
+                                        editar ? 'EDITAR SOLICITUD' : 'AGREGAR SOLICITUD'
+                                    }
+                                </h1>
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
@@ -237,14 +267,21 @@ const Solicitud = () => {
                                 <input className='form-control' type="date" value={fecha} name="fecha" onChange={(e)=>{setFecha(e.target.value)}} />
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                <button type="button" onClick={guardarDatos} className="btn btn-primary">Enviar</button>
+                                <button type="button" className="btn btn-secondary" onClick={() => setEditar(false)} data-bs-dismiss="modal">Cerrar</button>
+                                {
+                                    !editar ? (
+                                        <button type="button" onClick={guardarDatos} className="btn btn-primary">Guardar</button>
+                                    ):
+                                    (
+                                        <button type="button" onClick={actualizarDato} className="btn btn-primary" data-bs-dismiss="modal">Editar</button>
+                                    )
+                                }
                             </div>
                         </div>
                     </div>
                 </div>
                 {/* Modal Consultas */}
-                <div className="modal fade" id="modalConsulta" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal fade" id="modalConsulta" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true" style={{zIndex:"1600"}}>
                     <div className="modal-dialog modal-xl">
                         <div className="modal-content">
                         <div className="modal-header">
@@ -260,61 +297,25 @@ const Solicitud = () => {
                                         <th scope='col'>Descripción</th>
                                         <th scope='col'>Ubicación</th>
                                         <th scope='col'>Fecha</th>
-                                        <th scope='col'>
-                                            <button className="btn btn-sm btn-outline-dark float-end" onClick={()=>Modoeditar()} ><i className="bi bi-pencil p-1"></i></button>
-                                            </th>
+                                        <th scope='col'>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {
-                                        lista.map((element, i)=>(
-                                            <tr key={i}>
+                                        lista.map((item)=>(
+                                            <tr key={item.id}>
+                                                <td>{item.categoria}</td>
+                                                <td>{item.articulo}</td>
+                                                <td>{item.descripcion}</td>
+                                                <td>{item.ubicacion}</td>
+                                                <td>{item.fecha}</td>    
                                                 <td>
-                                                    {
-                                                        editar?
-                                                        <input className='form-control form-control-sm' value={element.categoria} disabled = {editar}/>
-                                                        :
-                                                        <select className="form-select-sm" aria-label="Default select example" onClick={cargarServicios}>
-                                                            <option value={categ}>Categoria principal:</option>
-                                                            {
-                                                                requerimientos.map((item, i) => (
-                                                                    <option key={i} value={i} >{item.categoria}</option>
-                                                                ))
-                                                            }
-                                                        </select>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    {
-                                                        editar?
-                                                        <input className='form-control form-control-sm' value={element.articulo} disabled = {editar} />:
-                                                        <select className="form-select-sm " aria-label="Default select example" onClick={cargarArticulos} >
-                                                            <option value={-1}>Servicios:</option>
-                                                            {
-                                                                idArticulos > -1 &&
-                                                                (
-                                                                    requerimientos[idArticulos].servicios.map((item, i) => (
-                                                                        <option key={i} value={item}>{item}</option>
-                                                                    ))
-                                                                )
-                                                            }
-                                                        </select>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <input className='form-control form-control-sm' value={element.descripcion} disabled = {editar} />
-                                                </td>
-                                                <td>
-                                                    <input className='form-control form-control-sm' value={element.ubicacion} disabled = {editar} />
-                                                </td>
-                                                <td>
-                                                    <input className='form-control form-control-sm' type="date" value={element.fecha} name="fecha" onChange={(e)=>{setFecha(e.target.value)}} disabled = {editar} />
-                                                    
-                                                </td>
-                                                <td>
-                                                <button className="btn btn-sm btn-outline-info ms-1 float-end" onClick={()=>actualizar(element)}><i className="bi bi-check-lg"></i></button>
+                                                <button className="btn btn-sm btn-outline-info ms-1 float-end" data-bs-toggle="modal" data-bs-target="#solicitudModal" onClick={() => auxEditar(item)}>
+                                                    <i className="bi bi-pencil p-1"></i>
+                                                </button>
                                                 <button className="btn btn-sm btn-outline-danger ms-1 float-end"
-                                                    onClick={()=>eliminarDato(element.id)}><i className="bi bi-trash3"></i></button>
+                                                    onClick={()=>eliminarDato(item.id)}><i className="bi bi-trash3"></i>
+                                                </button>
                                                 </td>
                                             </tr>
                                         ))
@@ -323,8 +324,7 @@ const Solicitud = () => {
                             </table>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="button" className="btn btn-primary">Aceptar</button>
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Cerrar</button>
                         </div>
                         </div>
                     </div>

@@ -27,7 +27,7 @@ function App() {
             <Route path="solicitudes" element={<Solicitud/>}/>
           </Routes>
         </div>
-      </Router>
+      </Router> 
     </div>
   )
   :

@@ -58,7 +58,7 @@ const Login = () => {
     const registrar=React.useCallback(async()=>{
       try {
         const res= await auth.createUserWithEmailAndPassword(email,pass)
-        console.log(res.user)
+        console.log(res.user) 
         await db.collection('UserDataBase').doc(res.user.email).set(
           {
             email:res.user.email,
@@ -69,7 +69,7 @@ const Login = () => {
         setEmail('')
         setPass('')
         setError(null)
-        navigate("/solicitudes")
+        //navigate("/login")
       } catch (error) {
         console.log(error)
         if (error.code==='auth/invalid-email') {
@@ -82,7 +82,7 @@ const Login = () => {
           setError('Contraseña Incorrecta')
         }
       }
-    },[email,pass,navigate])
+    },[email,pass])
 
   return (
     <div>
